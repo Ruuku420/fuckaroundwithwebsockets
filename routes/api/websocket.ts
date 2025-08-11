@@ -2,14 +2,22 @@ import { FreshContext } from "$fresh/server.ts";
 import { getCookies } from "@std/http/cookie";
 // import { Queue } from "@justin/data-structures";
 
+import { PacketType, MessageEvents, MessageSystem } from "../../shared/api.ts";
+
+
 const sockets: Record<string, WebSocket> = {};
 
-export const handler: Handler = (req: Request, ctx: FreshContext): Response => {
+export const handler: Handler = (
+  req: Request,
+  ctx: FreshContext
+): Response => {
   if (req.headers.get("upgrade") != "websocket") {
     return new Response(null, { status: 426 });
   }
 
   const { socket, response } = Deno.upgradeWebSocket(req);
+
+  const send_macro = (data: PacktType): void => socket.send(JSON.stringify(data));
 
   let socketID: string;
 
@@ -25,14 +33,16 @@ export const handler: Handler = (req: Request, ctx: FreshContext): Response => {
 
   socket.addEventListener("open", () => {
     // console.log(ctx.remoteAddr);
-    socket.send(JSON.stringify({
-      id: socketID,
-    }));
+    
+    send_macro({
+      event: MessageEvents.GetID,
+      payload: { uuid: socketID },
+    });
 
-    socket.send(JSON.stringify({
-      users: Object.keys(sockets),
-    })); 
-
+    send_macro({
+      event: MessageEvents.ListUsers,
+      payload: { users: Object.keys(sockets) },
+    })
   });
 
   socket.addEventListener("message", (event) => {

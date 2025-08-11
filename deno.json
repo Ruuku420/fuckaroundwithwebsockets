@@ -23,6 +23,7 @@
   "nodeModulesDir": "auto",
   "imports": {
     "$fresh/": "https://deno.land/x/fresh@1.7.3/",
+    "@justin/data-structures": "jsr:@justin/data-structures@^0.3.0",
     "@std/http": "jsr:@std/http@^1.0.20",
     "preact": "https://esm.sh/preact@10.22.0",
     "preact/": "https://esm.sh/preact@10.22.0/",

@@ -1,51 +1,9 @@
 import { useEffect, useState } from 'preact/hooks';
 import { Signal, useSignal } from '@preact/signals';
 
+import { PacketType, MessageEvents, MessageSystem } from "../shared/api.ts";
+
 type Status = "Disconnected" | "Connected" | "Error" // TODO Colors
-
-class MyWebSocket {
-  private constructor(socket: WebSocket, id: string) { }
-
-  public static create(
-    connectionStatus: Signal<Status>,
-    users: Signal<string[]>,
-  ): MyWebSocket {
-    const socket = new WebSocket("/api/websocket");
-
-    socket.addEventListener("error", (event) => {
-      connectionStatus.value = "Error";
-      console.warn(event);
-    })
-
-    socket.addEventListener("open", (event) => {
-      connectionStatus.value = "Connected";
-    })
-
-    socket.addEventListener("close", (event) => {
-      connectionStatus.value = "Disconnected";
-    })
-
-    socket.addEventListener("message", (event) => {
-      const data: unknown = JSON.parse(event.data);
-      console.log(data);
-
-      if (data?.users !== undefined) {
-        users.value = data.users;
-      }
-    })
-
-    return new MyWebSocket(socket);
-  }
-
-  public close() {
-    this.socket.close();
-  }
-}
-
-// type MyDataType = {
-//   Users[],
-//   Offers[]
-// } 
 
 function StatusBar(props: { state: Signal<Status> }) {
   return (
@@ -60,7 +18,7 @@ function UserTab(props: { users: string[] }) {
     <div class="flex flex-col h-full p-2 w-1/5 bg-slate-200">
       {
         props.users.map(user => (
-          <div class="text-ellipsis w-full text-sm">{user}</div>
+          <div class="whitespace-nowrap overflow-x-hidden text-ellipsis w-full text-sm">{user}</div>
         ))
       }
     </div>
@@ -73,13 +31,39 @@ export default function MainScreenView(
   const users = useSignal<string[]>([]);
 
   useEffect(() => {
-    const ws = MyWebSocket.create(
-      connectionStatus,
-      users,
-    );
+    const messageSystem = new MessageSystem();
+    const socket = new WebSocket("/api/websocket");
+
+    messageSystem.addEventListener(MessageEvents.GetID, (event) => {
+      console.log(event.uuid);
+    });
+
+    messageSystem.addEventListener(MessageEvents.ListUsers, (event) => {
+      users.value = event.users;
+    });
+
+
+    socket.addEventListener("error", (event) => {
+      connectionStatus.value = "Error";
+      console.warn(event);
+    });
+
+    socket.addEventListener("open", (event) => {
+      connectionStatus.value = "Connected";
+    });
+
+    socket.addEventListener("close", (event) => {
+      connectionStatus.value = "Disconnected";
+    });
+
+    socket.addEventListener("message", (event) => {
+      const data: PacketType = JSON.parse(event.data);
+      messageSystem.parse(data);
+    })
+
 
     return () => {
-      ws.close();
+      socket.close();
     }
   }, [])
   

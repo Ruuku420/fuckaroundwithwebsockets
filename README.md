@@ -1,16 +1,8 @@
-# Fresh project
-
-Your new Fresh project is ready to go. You can follow the Fresh "Getting
-Started" guide here: https://fresh.deno.dev/docs/getting-started
+# Gahhhhhh websockets
 
 ### Usage
 
-Make sure to install Deno: https://deno.land/manual/getting_started/installation
-
-Then start the project:
-
+Run the project in development mode:
 ```
-deno task start
+./dev.ts
 ```
-
-This will watch the project directory and restart as necessary.
