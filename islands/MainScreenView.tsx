@@ -35,11 +35,11 @@ export default function MainScreenView(
     const socket = new WebSocket("/api/websocket");
 
     messageSystem.addEventListener(MessageEvents.GetID, (event) => {
-      console.log(event.uuid);
+      console.log(`client uuid: ${event.data.uuid}`);
     });
 
     messageSystem.addEventListener(MessageEvents.ListUsers, (event) => {
-      users.value = event.users;
+      users.value = event.data.users;
     });
 
 

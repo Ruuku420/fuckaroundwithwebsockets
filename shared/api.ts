@@ -11,13 +11,26 @@ export interface PacketType {
   payload: unknown,
 }
 
+class MessageEvent extends Event {
+  #data: unknown;
+
+  constructor(event, data) {
+    super(event);
+    this.#data = data;
+  }
+
+  get data() {
+    return this.#data;
+  } 
+}
+
 export class MessageSystem extends EventTarget {
   constructor() {
     super();
   }
 
   parse(message: PacketType): void {
-    const customEvent = new CustomEvent(message.event, message.payload);
+    const customEvent = new MessageEvent(message.event, message.payload);
     this.dispatchEvent(customEvent);
   }
 }
