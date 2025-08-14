@@ -7,8 +7,8 @@ export enum MessageEvents {
 }
 
 export interface PacketType {
-  event: MessageEvents,
-  payload: unknown,
+  event: MessageEvents;
+  payload: unknown;
 }
 
 class MessageEvent extends Event {
@@ -21,7 +21,7 @@ class MessageEvent extends Event {
 
   get data() {
     return this.#data;
-  } 
+  }
 }
 
 export class MessageSystem extends EventTarget {
